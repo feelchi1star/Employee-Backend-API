@@ -1,27 +1,34 @@
 package com.example.employeebackendapi.service;
 
+import com.example.employeebackendapi.dto.*;
+import com.example.employeebackendapi.model.Employee;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
-import com.example.employeebackendapi.dto.EmployeeRequestDto;
-import com.example.employeebackendapi.dto.UpdateEmployeeDetailsRequestDto;
-import com.example.employeebackendapi.model.Employee;
-
-import jakarta.validation.Valid;
-
 public interface EmployeeService {
-    // Get all employees
-    List<Employee> getAll();
-    // Get employee by ID
+    Page<Employee> getAll(String department, Boolean active, Pageable pageable);
+    
     Employee getById(Long id);
-    // Create new employee
-    Employee create(@Valid EmployeeRequestDto employee);
+    
+    Employee create(EmployeeRequestDto dto);
 
-    // Update existing employee
-    Employee update(Long id, @Valid UpdateEmployeeDetailsRequestDto employee);
+    Employee update(Long id, UpdateEmployeeDetailsRequestDto dto);
 
-    // Delete employee by ID
     void softDelete(Long id);
 
-    // Hard delete employee by ID
     void hardDelete(Long id);
+
+    List<Employee> getBySalaryRange(BigDecimal min, BigDecimal max);
+
+    ImportResultDto importFromExcel(MultipartFile file) throws IOException;
+
+    void exportToExcel(HttpServletResponse response, String department, Boolean active) throws IOException;
+
+    void exportToPdf(HttpServletResponse response) throws IOException;
 }

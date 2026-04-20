@@ -1,14 +1,14 @@
 package com.example.employeebackendapi.dto;
-import lombok.Data;
+
 import java.time.LocalDateTime;
 
-public record EmployeeResponseDto {
-    private Long id;
-    private String name;
-    private String email;
-    private String department;
-    private Double salary;
-    private boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-}
+public record EmployeeResponseDto(
+    Long id,
+    String name,
+    String email,
+    String department,
+    Double salary,
+    boolean active,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
+) {}

@@ -21,7 +21,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-
 /**
  * Employee entity representing the employee table in the database.
  */
@@ -32,7 +31,7 @@ import lombok.Setter;
 public class Employee {
 
     @Id
-   @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
    
     @NotBlank
@@ -62,7 +61,6 @@ public class Employee {
    
     @NotNull
     private Boolean active = true;
-
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

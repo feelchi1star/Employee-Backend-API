@@ -1,34 +1,39 @@
 package com.example.employeebackendapi.dto;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Data;
+import jakarta.validation.constraints.PastOrPresent;
 
 import java.math.BigDecimal;
-/**
- * DTO for creating/updating employee.
- */
-@Data
-public class EmployeeRequestDto {
+import java.time.LocalDate;
 
-    @NotBlank
-    private String firstName;
+public record EmployeeRequestDto(
+    @NotBlank(message = "First name is required")
+    String firstName,
 
-    @NotBlank
-    private String lastName;
+    @NotBlank(message = "Last name is required")
+    String lastName,
 
-    // Salary should be a positive number
-    @NotNull
-    @Positive
-    private BigDecimal salary;
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    String email,
 
-    @Email
-    @NotBlank
-    private String email;
+    @NotBlank(message = "Department is required")
+    String department,
 
-    @NotBlank
-    private String department;
+    @NotNull(message = "Salary is required")
+    @Positive(message = "Salary must be positive")
+    BigDecimal salary,
 
+    @NotNull(message = "Date of joining is required")
+    @PastOrPresent(message = "Date of joining cannot be in the future")
+    LocalDate dateOfJoining,
 
+    Boolean active
+) {
+    public EmployeeRequestDto {
+        if (active == null) active = true;
+    }
 }
