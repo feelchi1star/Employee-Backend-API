@@ -9,7 +9,11 @@ import jakarta.validation.constraints.PastOrPresent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record EmployeeRequestDto(
+/**
+ * DTO for importing employees from Excel.
+ * Includes additional fields like dateOfJoining and active status.
+ */
+public record ImportEmployeeRequestDto(
     @NotBlank(message = "First name is required")
     String firstName,
 
@@ -25,9 +29,13 @@ public record EmployeeRequestDto(
 
     @NotNull(message = "Salary is required")
     @Positive(message = "Salary must be positive")
-    BigDecimal salary
+    BigDecimal salary,
 
+    @NotNull(message = "Date of joining is required")
+    @PastOrPresent(message = "Join date cannot be in the future")
+    LocalDate dateOfJoining,
 
+    @NotNull(message = "Active status is required")
+    Boolean isActive
 ) {
-
 }

@@ -1,6 +1,7 @@
 package com.example.employeebackendapi.service.Impl;
 
 import com.example.employeebackendapi.dto.EmployeeRequestDto;
+import com.example.employeebackendapi.dto.ImportEmployeeRequestDto;
 import com.example.employeebackendapi.dto.UpdateEmployeeDetailsRequestDto;
 import com.example.employeebackendapi.dto.ImportResultDto;
 import com.example.employeebackendapi.exception.EmployeeNotFoundException;
@@ -68,13 +69,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<Employee> getAll(String department, Boolean active, Pageable pageable) {
-        Specification<Employee> spec = Specification.where((Specification<Employee>) null);
+        Specification<Employee> spec = (root, query, cb) -> cb.conjunction();
+
         if (department != null && !department.isBlank()) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("department"), department));
         }
         if (active != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("active"), active));
         }
+        
         return repository.findAll(spec, pageable);
     }
 
@@ -98,8 +101,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setEmail(dto.email());
         employee.setDepartment(dto.department());
         employee.setSalary(dto.salary());
-        employee.setDateOfJoining(dto.dateOfJoining() != null ? dto.dateOfJoining() : LocalDate.now());
-        employee.setActive(dto.active() != null ? dto.active() : true);
+        employee.setDateOfJoining(LocalDate.now());
 
         return repository.save(employee);
     }
@@ -116,7 +118,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employee.setSalary(dto.salary());
         employee.setDepartment(dto.department());
-        employee.setActive(dto.active());
 
         return repository.save(employee);
     }
@@ -171,8 +172,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 if (row == null) continue;
 
                 try {
-                    EmployeeRequestDto dto = mapRowToDto(row, formatter);
-                    Set<ConstraintViolation<EmployeeRequestDto>> violations = validator.validate(dto);
+                    ImportEmployeeRequestDto dto = mapRowToDto(row, formatter);
+                    Set<ConstraintViolation<ImportEmployeeRequestDto>> violations = validator.validate(dto);
                     
                     if (!violations.isEmpty()) {
                         String errMsg = violations.stream()
@@ -194,7 +195,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     employee.setDepartment(dto.department());
                     employee.setSalary(dto.salary());
                     employee.setDateOfJoining(dto.dateOfJoining());
-                    employee.setActive(dto.active());
+                    employee.setActive(dto.isActive());
                     
                     repository.save(employee);
                     successCount++;
@@ -344,7 +345,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return FontFactory.getFont(FontFactory.HELVETICA, 10);
     }
 
-    private EmployeeRequestDto mapRowToDto(Row row, DataFormatter formatter) {
+    private ImportEmployeeRequestDto mapRowToDto(Row row, DataFormatter formatter) {
         String firstName = formatter.formatCellValue(row.getCell(0));
         String lastName = formatter.formatCellValue(row.getCell(1));
         String email = formatter.formatCellValue(row.getCell(2));
@@ -359,7 +360,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         LocalDate dateOfJoining = LocalDate.now();
         String dateStr = formatter.formatCellValue(row.getCell(5));
         if (dateStr != null && !dateStr.isBlank()) {
-            dateOfJoining = LocalDate.parse(dateStr);
+            try {
+                dateOfJoining = LocalDate.parse(dateStr);
+            } catch (Exception e) {
+                // If parsing fails, it will be caught by validator in importFromExcel
+            }
         }
 
         Boolean active = true;
@@ -368,7 +373,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             active = Boolean.parseBoolean(activeStr);
         }
 
-        return new EmployeeRequestDto(firstName, lastName, email, department, salary, dateOfJoining, active);
+        return new ImportEmployeeRequestDto(firstName, lastName, email, department, salary, dateOfJoining, active);
     }
 
     private void duplicateEmailCheck(String email) {
