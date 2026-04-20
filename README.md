@@ -48,7 +48,7 @@ A high-performance, robust RESTful API built with Spring Boot for comprehensive 
     ./mvnw spring-boot:run
     ```
 4.  Access the API at `http://localhost:8080/api/v1/employees`.
-5.  View Swagger documentation at `http://localhost:8080/swagger-ui.html`.
+5.  View Swagger documentation at `http://localhost:8080/api/v1/swagger-ui.html`.
 
 ---
 
