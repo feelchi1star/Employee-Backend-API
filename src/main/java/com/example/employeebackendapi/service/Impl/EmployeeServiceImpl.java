@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 @Service
 @Validated
@@ -305,7 +307,15 @@ public class EmployeeServiceImpl implements EmployeeService {
             table.addCell(cell);
         }
 
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "NG"));
+        // Using NGN prefix for better compatibility with standard PDF fonts that may lack the Naira symbol glyph
+        if (currencyFormat instanceof DecimalFormat) {
+            DecimalFormat df = (DecimalFormat) currencyFormat;
+            DecimalFormatSymbols sym = df.getDecimalFormatSymbols();
+            sym.setCurrencySymbol("NGN ");
+            df.setDecimalFormatSymbols(sym);
+        }
+
         DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
 
         for (int i = 0; i < employees.size(); i++) {
